@@ -1,32 +1,33 @@
 import type { PlasmoCSConfig } from "plasmo"
-import type { BrowserMetrics, MemoryMetrics, Metadata, NetworkMetrics, PageMetrics } from "./shared/types";
+import type { BrowserMetrics, Data, MemoryMetrics, Metadata, NetworkMetrics, PageMetrics } from "./shared/types";
 
 export const config: PlasmoCSConfig = {
     matches: ["https://*/*"],
     all_frames: true,
-    world: "MAIN",
     run_at: "document_end"
 }
 
-export const metadata: Metadata = {
-    title: document.title,
-    url: document.documentURI || window.location.href,
-    protocol: document.location.protocol || window.location.protocol,
-    charset: document.characterSet,
-    dimensions:
-        `${window.innerWidth} x ${window.innerHeight}`,
-    devicePixelRatio: window.devicePixelRatio,
-    browser: navigator.userAgent,
-    platform: navigator.userAgentData?.platform || navigator.platform,
-    favicon:
-        document.querySelector('link[rel="icon"]')?.href ||
-        document.querySelector('link[rel="shortcut icon"]')?.href ||
-        document.querySelector('link[rel*="icon"]')?.href ||
-        null,
-    secure: window.location.protocol === "https:",
-    framework: detectFramework(),
-    cssFramework: detectCssFramework()
-};
+export function getMetadata(): Metadata {
+    return {
+        title: document.title,
+        url: document.documentURI || window.location.href,
+        protocol: document.location.protocol || window.location.protocol,
+        charset: document.characterSet,
+        dimensions:
+            `${window.innerWidth} x ${window.innerHeight}`,
+        devicePixelRatio: window.devicePixelRatio,
+        browser: navigator.userAgent,
+        platform: navigator.userAgentData?.platform || navigator.platform,
+        favicon:
+            document.querySelector('link[rel="icon"]')?.href ||
+            document.querySelector('link[rel="shortcut icon"]')?.href ||
+            document.querySelector('link[rel*="icon"]')?.href ||
+            null,
+        secure: window.location.protocol === "https:",
+        framework: detectFramework(),
+        cssFramework: detectCssFramework()
+    };
+}
 
 // Detect JavaScript Framework
 function detectFramework() {
@@ -64,7 +65,6 @@ function detectCssFramework() {
 
     return null;
 }
-
 
 export async function collectPageMetrics(): Promise<PageMetrics> {
     const nav = performance.getEntriesByType(
@@ -214,7 +214,6 @@ export async function collectPageMetrics(): Promise<PageMetrics> {
         requestAnimationFrame(frame);
     });
 
-    console.log({ metrics });
     return metrics;
 }
 
@@ -234,7 +233,6 @@ export function getMemoryMetrics(): MemoryMetrics {
             (memory.usedJSHeapSize / memory.totalJSHeapSize) * 100;
     }
 
-    console.log({ metrics })
     return metrics;
 }
 
@@ -262,15 +260,6 @@ export function getNetworkMetrics(): NetworkMetrics {
         return acc;
     }, {} as Record<string, number>);
 
-    console.log({
-        totalRequests: resources.length,
-        requestRate:
-            resources.length / (performance.now() / 1000),
-        downloaded,
-        resourceBreakdown,
-        redirects,
-        cacheHits,
-    })
     return {
         totalRequests: resources.length,
         requestRate:
@@ -311,3 +300,26 @@ export function getBrowserMetrics(): BrowserMetrics {
         focused: document.hasFocus(),
     };
 }
+
+export async function getData(): Promise<Data> {
+    const metadata = getMetadata()
+    const performance = await collectPageMetrics()
+    const memory = getMemoryMetrics()
+    const network = getNetworkMetrics()
+    const runtime = getBrowserMetrics()
+
+    return {
+        metadata,
+        performance,
+        memory,
+        network,
+        runtime
+    }
+}
+
+chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
+    if (message.type === "GET_DATA") {
+        getData().then(sendResponse)
+        return true // async response
+    }
+})

@@ -59,3 +59,11 @@ export type BrowserMetrics = {
     visibilityState: DocumentVisibilityState;
     focused: boolean;
 };
+
+export interface Data {
+    metadata: Metadata,
+    network: NetworkMetrics,
+    runtime: BrowserMetrics,
+    memory: MemoryMetrics,
+    performance: PageMetrics
+}
