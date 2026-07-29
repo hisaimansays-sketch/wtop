@@ -37,23 +37,9 @@ Version 3, 29 June 2007
 
 | Category    | Metrics                                                  |
 | ----------- | ---------------------------------------------------------------- |
-| Runtime     | DOM nodes, cookies, localStorage, sessionStorage, history length |
-| Network     | Request count, resource types, bytes transferred, request rate   |
-| Memory      | JS heap used, heap total, heap limit                             |
 | Metadata    | URL, protocol, framework, libraries, title, language             |
 | Performance | FCP, LCP, DOMContentLoaded, Load Event, FPS                      |
+| Memory      | JS heap used, heap total, heap limit                             |
+| Network     | Request count, resource types, bytes transferred, request rate   |
+| Runtime     | DOM nodes, cookies, localStorage, sessionStorage, history length |
 
-
-Title - document.title
-URL - document.documentURI || window.location.href
-Protocol - document.location.protocol || window.location.protocol
-Referrer
-Framework
-CSS Framework
-Charset - document.charset
-Viewport
-Device Pixel Ratio
-Browser
-Platform
-Favicon
-HTTPS
