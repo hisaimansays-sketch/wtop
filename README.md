@@ -14,6 +14,7 @@
 - Minimal terminal-style UI
 - Zero configuration
 - Built with [Plasmo](https://www.plasmo.com/)
+- Useful Metrics
 
 ## Metrics
 
